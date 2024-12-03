@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import {Ownable} from "./utils/Ownable.sol";
 import {FixedPointMathLib} from "./utils/FixedPointMathLib.sol";
 import {ISystemOracle} from "./interfaces/ISystemOracle.sol";
-
 ///@title Aggregator
 ///@author fbsloXBT
 ///@notice A price oracle aggregator for HyperEVM.

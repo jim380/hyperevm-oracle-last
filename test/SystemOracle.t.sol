@@ -33,7 +33,6 @@ contract SystemOracleTest is Test {
 
     /// @notice
     /// TO-DO: fix decimal scaling issues
-    /*
     function testPerpOracleIntegration() public {
         address asset = makeAddr("asset");
         uint32 metaIndex = 1;
@@ -42,7 +41,10 @@ contract SystemOracleTest is Test {
         aggregator.setAsset(asset, true, metaIndex, metaDecimals, 0, false);
 
         uint256 price = aggregator.getPrice(asset);
-        assertEq(price, 2000000000);
+        //scale to 8 decimals and remove decimals from systemOracle
+        //https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/evm/system-contract
+        uint256 expectedPrice = 2000e6 * (1e8) / (10 ** (6 - metaDecimals));
+        assertEq(price, expectedPrice);
     }
 
     function testDifferentDecimalConfigurations() public {
@@ -55,8 +57,9 @@ contract SystemOracleTest is Test {
         uint256 price1 = aggregator.getPrice(asset1);
         uint256 price2 = aggregator.getPrice(asset2);
 
-        assertEq(price1, 1000000000);
-        assertEq(price2, 2000000000);
+        uint256 expectedPrice1 = 1000e6 * (1e8) / (10 ** (6 - 6));
+        uint256 expectedPrice2 = 2000e6 * (1e8) / (10 ** (6 - 6));
+        assertEq(price1, expectedPrice1);
+        assertEq(price2, expectedPrice2);
     }
-    */
 }
