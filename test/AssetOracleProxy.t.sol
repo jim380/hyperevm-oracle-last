@@ -15,12 +15,7 @@ contract AssetOracleProxyTest is Test {
     function setUp() public {
         aggregator = new Aggregator();
         asset = makeAddr("asset");
-        proxy = new AssetOracleProxy(
-            address(aggregator),
-            DESCRIPTION,
-            DECIMALS,
-            asset
-        );
+        proxy = new AssetOracleProxy(address(aggregator), DESCRIPTION, DECIMALS, asset);
     }
 
     function testInitialState() public {
@@ -40,13 +35,8 @@ contract AssetOracleProxyTest is Test {
         uint256 price = 1500e8;
         aggregator.setAsset(asset, false, 999, 8, price, false);
 
-        (
-            uint80 roundId,
-            int256 answer,
-            uint256 startedAt,
-            uint256 updatedAt,
-            uint80 answeredInRound
-        ) = proxy.latestRoundData();
+        (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound) =
+            proxy.latestRoundData();
 
         assertEq(roundId, 0);
         assertEq(answer, int256(price));

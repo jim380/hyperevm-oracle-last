@@ -15,11 +15,7 @@ contract AggregatorTest is Test {
         bool _isUpdate
     );
     event KeeperUpdated(address _keeper, bool _newState);
-    event RoundDataSubmitted(
-        address[] _assets,
-        uint256[] _prices,
-        uint256 _timestamp
-    );
+    event RoundDataSubmitted(address[] _assets, uint256[] _prices, uint256 _timestamp);
 
     Aggregator public aggregator;
     MockSystemOracle public mockOracle;
@@ -35,22 +31,14 @@ contract AggregatorTest is Test {
 
     function testConstructor() public {
         assertEq(aggregator.owner(), owner);
-        assertEq(
-            address(aggregator.systemOracle()),
-            address(0x1111111111111111111111111111111111111111)
-        );
+        assertEq(address(aggregator.systemOracle()), address(0x1111111111111111111111111111111111111111));
     }
 
     // setAsset Tests
     function testOnlyOwnerCanAddAsset() public {
         address notOwner = makeAddr("notOwner");
         vm.prank(notOwner);
-        vm.expectRevert(
-            abi.encodeWithSignature(
-                "OwnableUnauthorizedAccount(address)",
-                notOwner
-            )
-        );
+        vm.expectRevert(abi.encodeWithSignature("OwnableUnauthorizedAccount(address)", notOwner));
         aggregator.setAsset(makeAddr("asset"), true, 1, 8, 1000e8, false);
     }
 
@@ -65,14 +53,8 @@ contract AggregatorTest is Test {
 
         aggregator.setAsset(asset, true, metaIndex, metaDecimals, price, false);
 
-        (
-            bool exists,
-            bool isPerpOracle,
-            uint32 storedMetaIndex,
-            uint32 storedDecimals,
-            uint256 ema,
-
-        ) = aggregator.assetDetails(asset);
+        (bool exists, bool isPerpOracle, uint32 storedMetaIndex, uint32 storedDecimals, uint256 ema,) =
+            aggregator.assetDetails(asset);
 
         assertTrue(exists);
         assertTrue(isPerpOracle);
@@ -114,7 +96,7 @@ contract AggregatorTest is Test {
         vm.prank(keeper);
         aggregator.submitRoundData(assets, prices, block.timestamp);
 
-        (, , , , uint256 ema, ) = aggregator.assetDetails(asset);
+        (,,,, uint256 ema,) = aggregator.assetDetails(asset);
         assertEq(ema, 1000e8);
     }
 

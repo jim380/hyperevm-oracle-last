@@ -20,9 +20,7 @@ contract SystemOracleTest is Test {
 
         vm.etch(address(0x1111111111111111111111111111111111111111), code);
 
-        mockOracle = MockSystemOracle(
-            0x1111111111111111111111111111111111111111
-        );
+        mockOracle = MockSystemOracle(0x1111111111111111111111111111111111111111);
 
         aggregator = new Aggregator();
 

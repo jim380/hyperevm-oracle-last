@@ -27,7 +27,7 @@ contract EMACalculationTest is Test {
         vm.prank(keeper);
         aggregator.submitRoundData(assets, prices, block.timestamp);
 
-        (, , , , uint256 ema, ) = aggregator.assetDetails(asset);
+        (,,,, uint256 ema,) = aggregator.assetDetails(asset);
         assertEq(ema, 1000e8);
     }
 
@@ -45,7 +45,7 @@ contract EMACalculationTest is Test {
         vm.prank(keeper);
         aggregator.submitRoundData(assets, prices, block.timestamp);
 
-        (, , , , uint256 ema, ) = aggregator.assetDetails(asset);
+        (,,,, uint256 ema,) = aggregator.assetDetails(asset);
         assertTrue(ema >= 1000e8 && ema <= 2000e8);
     }
 
@@ -63,8 +63,8 @@ contract EMACalculationTest is Test {
         vm.prank(keeper);
         aggregator.submitRoundData(assets, prices, block.timestamp);
 
-        (, , , , uint256 ema1, ) = aggregator.assetDetails(asset);
-        (, , , , uint256 ema2, ) = aggregator.assetDetails(asset2);
+        (,,,, uint256 ema1,) = aggregator.assetDetails(asset);
+        (,,,, uint256 ema2,) = aggregator.assetDetails(asset2);
 
         assertEq(ema1, 1000e8);
         assertEq(ema2, 2000e8);
