@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
- 
+
 import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
- 
+
 ///@title PythOracleProxy
 ///@author fbsloXBT
 ///@notice Pyth oracle adapter
@@ -17,7 +17,7 @@ contract PythOracleProxy {
     bytes32 public priceFeedId;
     /// @notice description of the price feed
     string public description;
-    
+
     /// @param _pythContract The address of the Pyth contract
     /// @param _description the description of the price source
     /// @param _asset address of the underlying asset
@@ -56,49 +56,22 @@ contract PythOracleProxy {
         return latestTimestamp();
     }
 
-    function getRoundData(
-        uint80 _roundId
-    )
+    function getRoundData(uint80 _roundId)
         external
         view
-        returns (
-            uint80 roundId,
-            int256 answer,
-            uint256 startedAt,
-            uint256 updatedAt,
-            uint80 answeredInRound
-        )
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
         PythStructs.Price memory price = pyth.getPriceUnsafe(priceFeedId);
-        return (
-            _roundId,
-            int256(price.price),
-            price.publishTime,
-            price.publishTime,
-            _roundId
-        );
+        return (_roundId, int256(price.price), price.publishTime, price.publishTime, _roundId);
     }
 
     function latestRoundData()
         external
         view
-        returns (
-            uint80 roundId,
-            int256 answer,
-            uint256 startedAt,
-            uint256 updatedAt,
-            uint80 answeredInRound
-        )
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
         PythStructs.Price memory price = pyth.getPriceUnsafe(priceFeedId);
         roundId = uint80(price.publishTime);
-        return (
-            roundId,
-            int256(price.price),
-            price.publishTime,
-            price.publishTime,
-            roundId
-        );
+        return (roundId, int256(price.price), price.publishTime, price.publishTime, roundId);
     }
 }
- 

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import { Ownable } from "./utils/Ownable.sol";
-import { IAggregator } from "./interfaces/IAggregator.sol";
-import { ITokenOracleProxy } from "./interfaces/ITokenOracleProxy.sol";
+import {Ownable} from "./utils/Ownable.sol";
+import {IAggregator} from "./interfaces/IAggregator.sol";
+import {ITokenOracleProxy} from "./interfaces/ITokenOracleProxy.sol";
 
 ///@title AssetOracleProxy
 ///@author fbsloXBT
@@ -23,7 +23,9 @@ contract AssetOracleProxy is Ownable, ITokenOracleProxy {
     /// @param _description the description of the price source
     /// @param _decimals the number of decimals the aggregator responses represent
     /// @param _asset address of the underlying asset
-    constructor(address _aggregator, string memory _description, uint256 _decimals, address _asset) Ownable(msg.sender) {
+    constructor(address _aggregator, string memory _description, uint256 _decimals, address _asset)
+        Ownable(msg.sender)
+    {
         aggregator = IAggregator(_aggregator);
         description = _description;
         decimals = _decimals;
@@ -35,19 +37,17 @@ contract AssetOracleProxy is Ownable, ITokenOracleProxy {
         return aggregator.getPrice(asset);
     }
 
-    /// @notice returns the latest price in chainlink-compatible format 
-    function latestRoundData() external view returns (
-        uint80 roundId,
-        int256 answer,
-        uint256 startedAt,
-        uint256 updatedAt,
-        uint80 answeredInRound
-    ){  
+    /// @notice returns the latest price in chainlink-compatible format
+    function latestRoundData()
+        external
+        view
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+    {
         uint256 lastUpdate = block.timestamp;
         try aggregator.getUpdateTimestamp(asset) returns (uint256 l) {
             lastUpdate = l;
-        } catch { }
-        
+        } catch {}
+
         roundId = 0;
         answer = int256(aggregator.getPrice(asset));
         startedAt = lastUpdate;

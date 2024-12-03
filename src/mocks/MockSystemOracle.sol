@@ -2,33 +2,33 @@
 pragma solidity ^0.8.0;
 
 contract MockSystemOracle {
-  uint public sysBlockNumber;
-  uint[] public markPxs;
-  uint[] public oraclePxs;
-  uint[] public spotPxs;
+    uint256 public sysBlockNumber;
+    uint256[] public markPxs;
+    uint256[] public oraclePxs;
+    uint256[] public spotPxs;
 
-  // Function to set the list of numbers, only the owner can call this
-  function setValues(
-    uint _sysBlockNumber,
-    uint[] memory _markPxs,
-    uint[] memory _oraclePxs,
-    uint[] memory _spotPxs
-  ) public {
-    sysBlockNumber = _sysBlockNumber;
-    markPxs = _markPxs;
-    oraclePxs = _oraclePxs;
-    spotPxs = _spotPxs;
-  }
+    // Function to set the list of numbers, only the owner can call this
+    function setValues(
+        uint256 _sysBlockNumber,
+        uint256[] memory _markPxs,
+        uint256[] memory _oraclePxs,
+        uint256[] memory _spotPxs
+    ) public {
+        sysBlockNumber = _sysBlockNumber;
+        markPxs = _markPxs;
+        oraclePxs = _oraclePxs;
+        spotPxs = _spotPxs;
+    }
 
-  function getMarkPxs() external view returns (uint[] memory) {
-    return markPxs;
-  }
+    function getMarkPxs() external view returns (uint256[] memory) {
+        return markPxs;
+    }
 
-  function getOraclePxs() external view returns (uint[] memory) {
-    return oraclePxs;
-  }
+    function getOraclePxs() external view returns (uint256[] memory) {
+        return oraclePxs;
+    }
 
-  function getSpotPxs() external view returns (uint[] memory) {
-    return spotPxs;
-  }
+    function getSpotPxs() external view returns (uint256[] memory) {
+        return spotPxs;
+    }
 }

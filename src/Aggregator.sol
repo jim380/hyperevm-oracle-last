@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import { Ownable } from "./utils/Ownable.sol";
-import { FixedPointMathLib } from "./utils/FixedPointMathLib.sol";
-import { ISystemOracle } from "./interfaces/ISystemOracle.sol";
+import {Ownable} from "./utils/Ownable.sol";
+import {FixedPointMathLib} from "./utils/FixedPointMathLib.sol";
+import {ISystemOracle} from "./interfaces/ISystemOracle.sol";
 
 ///@title Aggregator
 ///@author fbsloXBT
-///@notice A price oracle aggregator for HyperEVM. 
+///@notice A price oracle aggregator for HyperEVM.
 ///@dev There are 2 types of assets:
 /// - perp-oracle assets where HL SystemOracle has the oracle price (submitted by L1 validators).
 /// - assets, where price is provided by an off-chain keepers (and then exponential moving average is used)
@@ -53,7 +53,14 @@ contract Aggregator is Ownable {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     ///@notice event emmited when an asset is added or updated
-    event AssetChanged(address indexed _asset, bool _isPerpOracle, uint32 indexed _metaIndex, uint32 _metaDecimals, uint256 _price, bool _isUpdate);
+    event AssetChanged(
+        address indexed _asset,
+        bool _isPerpOracle,
+        uint32 indexed _metaIndex,
+        uint32 _metaDecimals,
+        uint256 _price,
+        bool _isUpdate
+    );
     ///@notice event emmited when new data is submited for non-perp oracle assets
     event RoundDataSubmitted(address[] _assets, uint256[] _prices, uint256 _timestamp);
     ///@notice event emmited when a keeper is added or removed
@@ -64,9 +71,9 @@ contract Aggregator is Ownable {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     ///@notice modifier allowing only whitelisted keepers to call functions
-    modifier onlyKeeper(){
-      require(keepers[msg.sender] || msg.sender == owner(), "only keepers");
-      _;
+    modifier onlyKeeper() {
+        require(keepers[msg.sender] || msg.sender == owner(), "only keepers");
+        _;
     }
 
     constructor() Ownable(msg.sender) {}
@@ -77,12 +84,12 @@ contract Aggregator is Ownable {
 
     ///@notice function used to read the latest price data
     ///@param _asset address of the asset
-    function getPrice(address _asset) external view returns (uint256){
+    function getPrice(address _asset) external view returns (uint256) {
         require(assetDetails[_asset].exists == true, "getPrice: asset not found");
 
         AssetDetails memory _assetInfo = assetDetails[_asset];
 
-        if (_assetInfo.isPerpOracle){
+        if (_assetInfo.isPerpOracle) {
             return _getPerpOraclePrice(_asset);
         } else {
             require(block.timestamp - _assetInfo.lastTimestamp < MAX_EMA_STALE_SECONDS, "getPrice: stale EMA price");
@@ -92,12 +99,12 @@ contract Aggregator is Ownable {
 
     /// @notice function used to read the timestamp of the last price update for a certain asset
     /// @dev for perp assets, it returns block.timestamp
-    function getUpdateTimestamp(address _asset) external view returns (uint256){
+    function getUpdateTimestamp(address _asset) external view returns (uint256) {
         require(assetDetails[_asset].exists == true, "getUpdateTimestamp: asset not found");
 
         AssetDetails memory _assetInfo = assetDetails[_asset];
 
-        if (_assetInfo.isPerpOracle){
+        if (_assetInfo.isPerpOracle) {
             return block.timestamp;
         } else {
             return _assetInfo.lastTimestamp;
@@ -114,7 +121,14 @@ contract Aggregator is Ownable {
     ///@param _metaIndex index of the asset price in SystemOracle data (only for perp-oracle assets)
     ///@param _metaDecimals number of decimals of price in SystemOracle data (only for perp-oracle assets: price = x / Math.pow(10, 6 - decimals))
     ///@param _isUpdate indicates if asset is being added or updated
-    function setAsset(address _asset, bool _isPerpOracle, uint32 _metaIndex, uint32 _metaDecimals, uint256 _price, bool _isUpdate) external onlyOwner() {
+    function setAsset(
+        address _asset,
+        bool _isPerpOracle,
+        uint32 _metaIndex,
+        uint32 _metaDecimals,
+        uint256 _price,
+        bool _isUpdate
+    ) external onlyOwner {
         if (!_isUpdate) {
             require(assetDetails[_asset].exists == false, "setAsset: asset already exists");
             require(metaIndexes[_metaIndex] == address(0), "setAsset: metaIndex already exists");
@@ -136,7 +150,7 @@ contract Aggregator is Ownable {
 
     ///@notice function used to add or oremove keepers
     ///@param _keeper address of the keeper
-    function toggleKeeper(address _keeper) external onlyOwner() {
+    function toggleKeeper(address _keeper) external onlyOwner {
         keepers[_keeper] = !keepers[_keeper];
         emit KeeperUpdated(_keeper, keepers[_keeper]);
     }
@@ -146,11 +160,14 @@ contract Aggregator is Ownable {
     ///@param _prices array of prices for assets (must be in the same order as _assets)
     ///@param _submitTimestamp unix timestamp (in seconds) when transaction was sent by the keeper
     ///@dev prices must be scaled to 8 decimals before they are submitted
-    function submitRoundData(address[] calldata _assets, uint256[] calldata _prices, uint256 _submitTimestamp) external onlyKeeper() {
+    function submitRoundData(address[] calldata _assets, uint256[] calldata _prices, uint256 _submitTimestamp)
+        external
+        onlyKeeper
+    {
         require(block.timestamp - _submitTimestamp < MAX_TIMESTAMP_DELAY_SECONDS, "submitRoundData: expired");
         require(_assets.length == _prices.length, "submitRoundData: length mismatch");
 
-        for (uint256 i = 0; i < _assets.length; i++){
+        for (uint256 i = 0; i < _assets.length; i++) {
             //even if the asset is not added yet, we can write the price, since reading it will revert
             _calculateEma(_assets[i], _prices[i]);
         }
@@ -171,10 +188,10 @@ contract Aggregator is Ownable {
         uint256 currentEma = assetInfo.ema;
 
         //Andreas Eckner (2010): Algorithms for Unevenly Spaced Time Series: Moving Averages and Other Rolling Operators
-        int256 x = -int256(int256(block.timestamp - lastTimestamp) * 10**18 / EMA_WINDOW_SECONDS);
+        int256 x = -int256(int256(block.timestamp - lastTimestamp) * 10 ** 18 / EMA_WINDOW_SECONDS);
         int256 alpha = FixedPointMathLib.expWad(x);
-        uint256 newEma = uint256((int256(currentEma) * alpha + int256(_price) * (10**18 - alpha)) / 10**18);
-        
+        uint256 newEma = uint256((int256(currentEma) * alpha + int256(_price) * (10 ** 18 - alpha)) / 10 ** 18);
+
         assetDetails[_asset].lastTimestamp = block.timestamp;
         assetDetails[_asset].ema = newEma;
     }
@@ -191,6 +208,6 @@ contract Aggregator is Ownable {
 
         //scale to 8 decimals and remove decimals from systemOracle
         //https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/evm/system-contract
-        return _price * (10**8) / (10**(6 - _decimals));
+        return _price * (10 ** 8) / (10 ** (6 - _decimals));
     }
 }
